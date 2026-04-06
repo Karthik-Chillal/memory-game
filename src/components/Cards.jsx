@@ -1,4 +1,4 @@
-export default function Card({ card, onClick }){
+export default function Card({ card, clickHandler }){
 
   return(
     <div
@@ -8,15 +8,14 @@ export default function Card({ card, onClick }){
       <div
         className="card-image"
       >
-        <img src="{card.image}" alt="{card.name}" />
+        <img src={card.image} alt={card.name} />
       </div>
       <div
         className="card-desc"
       >
-        <div className="card-name">{card.name}</div>
-        <div className="card-type">{card.type}</div>
-        <div className="card-gen">{card.gen}</div>
-        <div className="card-moves">{card.moves}</div>
+        <div className="card-name">Name:  {card.name}</div>
+        <div className="card-type">Type:  {card.type}</div>
+        <div className="card-gen">Generation: {card.gen}</div>
 
       </div>
 
