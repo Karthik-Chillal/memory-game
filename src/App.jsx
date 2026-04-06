@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Card from "./components/Cards";
+import Header from "./components/header"
 
 const CARD_SIZE = 12;
 export default function App(){
@@ -7,8 +8,12 @@ export default function App(){
   const [cards, setCards] = useState([]);
   const [clicked, setClicked] = useState(new Set());
   const [bestScore, setBestScore] = useState(0);
+  const [score, setScore] = useState(0);
   const [status, setStatus] = useState('playing');
   const [loading, setLoading] = useState(true);
+
+
+
   useEffect(() => {
     const controller = new AbortController(); // 1. Create the controller
     const signal = controller.signal;
@@ -32,6 +37,8 @@ export default function App(){
   const handleCardClick = (id)=>{
     if(clicked.has(id)){
       setStatus('loss')
+      setScore(0)
+      setClicked(new Set())
       return
     }
     else{
@@ -39,8 +46,10 @@ export default function App(){
       temp.add(id);
       setClicked(temp)
       setBestScore(Math.max(temp.size, bestScore));
+      setScore(temp.size)
       if(temp.size == cards.length){
         setStatus("win");
+        setClicked(new Set())
         return
       }
       console.log(bestScore, status)
@@ -51,10 +60,13 @@ export default function App(){
   if(loading) return <p>Loading...</p>
   console.log(cards);
   return (
-    <div className="grid">
-      {cards.map(card => (
-        <Card key={card.id} card={card} clickHandler={handleCardClick} />
-      ))}
+    <div>
+      <Header bestScore={bestScore} currScore={score}></Header>
+      <div className="grid">
+        {cards.map(card => (
+          <Card key={card.id} card={card} clickHandler={handleCardClick} />
+        ))}
+      </div>
     </div>
   )
 }
@@ -80,28 +92,28 @@ async function fetchAllPokemon(signal) {
             'id' : data.name
           }
         })
+      )
     )
-  )
 
-  return results
-}
-
-function shuffle(cards) {
-  // 1. Create a copy so you don't mutate the original state directly
-  const newCards = [...cards];
-
-  // 2. Walk backwards through the array
-  for (let i = CARD_SIZE - 1; i > 0; i--) {
-
-    // 3. Pick a random index from 0 to i
-    // We use Math.floor to turn the decimal into a whole number index
-    const j = Math.floor(Math.random() * (i + 1));
-
-    // 4. Swap elements at i and j
-    let temp = newCards[i];
-    newCards[i] = newCards[j];
-    newCards[j] = temp;
+    return results
   }
 
-  return newCards;
-}
+  function shuffle(cards) {
+    // 1. Create a copy so you don't mutate the original state directly
+    const newCards = [...cards];
+
+    // 2. Walk backwards through the array
+    for (let i = CARD_SIZE - 1; i > 0; i--) {
+
+      // 3. Pick a random index from 0 to i
+      // We use Math.floor to turn the decimal into a whole number index
+      const j = Math.floor(Math.random() * (i + 1));
+
+      // 4. Swap elements at i and j
+      let temp = newCards[i];
+      newCards[i] = newCards[j];
+      newCards[j] = temp;
+    }
+
+    return newCards;
+  }
