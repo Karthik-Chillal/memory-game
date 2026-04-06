@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Card from "./components/Cards";
 
 const CARD_SIZE = 12;
 export default function App(){
@@ -6,10 +7,8 @@ export default function App(){
   const [cards, setCards] = useState([]);
   const [clicked, setClicked] = useState(new Set());
   const [bestScore, setBestScore] = useState(0);
-  const [status, setStatus] = useState("playing");
+  const [status, setStatus] = useState('playing');
   const [loading, setLoading] = useState(true);
-
-
   useEffect(() => {
     const controller = new AbortController(); // 1. Create the controller
     const signal = controller.signal;
@@ -24,15 +23,40 @@ export default function App(){
 
     // 3. Call it
     fetchData();
-
     // 4. Clean-Upp function
     return () => {
       controller.abort();
     };
   }, []);
 
-
+  const handleCardClick = (id)=>{
+    if(clicked.has(id)){
+      setStatus('loss')
+      return
+    }
+    else{
+      const temp = new Set(clicked);
+      temp.add(id);
+      setClicked(temp)
+      setBestScore(Math.max(temp.size, bestScore));
+      if(temp.size == cards.length){
+        setStatus("win");
+        return
+      }
+      console.log(bestScore, status)
+      // console.log(clicked);
+    }
+    setCards(shuffle(cards));
+  }
+  if(loading) return <p>Loading...</p>
   console.log(cards);
+  return (
+    <div className="grid">
+      {cards.map(card => (
+        <Card key={card.id} card={card} clickHandler={handleCardClick} />
+      ))}
+    </div>
+  )
 }
 
 
@@ -40,13 +64,22 @@ async function fetchAllPokemon(signal) {
   const names = [
     "pikachu", "charmander", "squirtle", "bulbasaur",
     "geodude", "magikarp", "mewtwo", "psyduck",
-    "ninetales", "rapidash", "onix", "horsea"
+    "ninetales", "rapidash", "onix", "hitmonchan"
   ]
 
   const results = await Promise.all(
     names.map(name =>
       fetch(`https://pokeapi.co/api/v2/pokemon/${name}`, signal)
         .then(r => r.json())
+        .then((data)=>{
+          return {
+            'name': data.name,
+            'type':data.types[0].type.name,
+            'gen' : data.past_stats[0].generation.name,
+            'image': data.sprites.front_default,
+            'id' : data.name
+          }
+        })
     )
   )
 
