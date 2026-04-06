@@ -5,6 +5,7 @@ import Header from "./components/header"
 const CARD_SIZE = 12;
 export default function App(){
   //defined states for the game:
+  
   const [cards, setCards] = useState([]);
   const [clicked, setClicked] = useState(new Set());
   const [bestScore, setBestScore] = useState(0);
